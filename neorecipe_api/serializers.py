@@ -1,5 +1,6 @@
 from rest_framework.serializers import *
 from .models import *
+from django.contrib.auth.models import User
 
 class FoodStoreSerializer(ModelSerializer):
     user = PrimaryKeyRelatedField(queryset=User.objects.all())
