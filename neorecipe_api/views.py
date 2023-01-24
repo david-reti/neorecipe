@@ -108,3 +108,7 @@ class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RecipeBook.objects.all()
     serializer_class = RecipeBookSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+
+class RecommendedRecipesView(generics.ListAPIView):
+    queryset = Recipe.objects.filter()
+    serializer_class = RecipeSerializer

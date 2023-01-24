@@ -1,5 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+
+class NeorecipeUser(AbstractUser):
+    def __str__(self):
+        return self.username
 
 class FoodStore(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -21,10 +26,15 @@ class Writer(models.Model):
 class RecipeBook(models.Model):
     slug = models.SlugField(unique=True)
     title = models.CharField(max_length=255)
-    isbn = models.DecimalField(max_digits=13, decimal_places=0, unique=True)
+    isbn = models.CharField(max_length=128, unique=True)
     publisher = models.CharField(max_length=255, null=True)
     publication_date = models.DateField(null=True)
-    authors = models.ManyToManyField(Writer)
+    authors = models.ManyToManyField(Writer, through='BookContributor')
+
+class BookContributor(models.Model):
+    writer = models.ForeignKey(Writer, on_delete=models.CASCADE)
+    book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE)
+    role = models.CharField(max_length=255)
 
 class RecipeBookSection(models.Model):
     title = models.CharField(max_length=255)
@@ -40,6 +50,12 @@ class Recipe(models.Model):
     source = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, null=True)
     book_section = models.ForeignKey(RecipeBookSection, on_delete=models.CASCADE, null=True)
     estimated_total_price = models.DecimalField(max_digits=6, decimal_places=2)
+
+class Article(models.Model):
+    slug = models.SlugField(unique=True)
+    title = models.CharField(max_length=255)
+    book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE)
+    contents = models.TextField()
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
