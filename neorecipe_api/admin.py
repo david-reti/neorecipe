@@ -10,4 +10,8 @@ class NeorecipeUserAdmin(UserAdmin):
     list_display = ['email', 'username']
 
 admin.site.register(RecipeBook)
+admin.site.register(RecipeBookSection)
+admin.site.register(Recipe)
+admin.site.register(Ingredient)
+admin.site.register(RecipeIngredient)
 admin.site.register(NeorecipeUser, NeorecipeUserAdmin)

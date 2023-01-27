@@ -25,11 +25,10 @@ class IngredientSerializer(ModelSerializer):
         fields = ['slug', 'name', 'description', 'average_price', 'source']
 
 class RecipeIngredientSerializer(ModelSerializer):
-    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-    ingredient = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    ingredient = IngredientSerializer()
     class Meta:
         model = RecipeIngredient
-        fields = ['recipe', 'ingredient', 'amount', 'amount_unit']
+        fields = ['recipe', 'ingredient', 'amount', 'amount_unit', 'preparation']
 
 class RecipeNoteSerializer(ModelSerializer):
     recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
@@ -46,9 +45,9 @@ class RecipeStepSerializer(ModelSerializer):
 class RecipeSerializer(ModelSerializer):
     source = PrimaryKeyRelatedField(queryset=RecipeBook.objects.all())
     book_section = PrimaryKeyRelatedField(queryset=RecipeBookSection.objects.all())
-    ingredients = IngredientSerializer(many=True)
-    steps = RecipeStepSerializer(many=True)
-    notes = RecipeNoteSerializer(many=True)
+    recipeingredient_set = RecipeIngredientSerializer(many=True)
+    recipestep_set = RecipeStepSerializer(many=True)
+    recipenote_set = RecipeNoteSerializer(many=True)
 
     def validate(self, data):
         if not data.get('source', None) and not data.get('book_section', None):
@@ -56,7 +55,7 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'page', 'serves', 'steps', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
+        fields = ['slug', 'title', 'page', 'serves', 'recipestep_set', 'recipenote_set', 'recipeingredient_set', 'description', 'source', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
     authors = StringRelatedField(many=True, read_only=True)

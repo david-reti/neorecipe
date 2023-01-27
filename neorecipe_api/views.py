@@ -110,5 +110,10 @@ class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
 class RecommendedRecipesView(generics.ListAPIView):
-    queryset = Recipe.objects.filter()
     serializer_class = RecipeSerializer
+    filter_backends = [ filters.OrderingFilter ]
+    ordering_fields = [ 'title', 'page', 'serves', 'estimated_total_price' ]
+    ordering = [ 'title' ]
+
+    def get_queryset(self):
+        return Recipe.objects.all()
