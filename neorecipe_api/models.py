@@ -11,7 +11,7 @@ class Ingredient(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    average_price = models.DecimalField(max_digits=6, decimal_places=2, blank=True)
+    average_price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     source = models.ForeignKey(FoodStore, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -52,7 +52,7 @@ class Recipe(models.Model):
     page = models.PositiveIntegerField(null=True, blank=True)
     serves = models.PositiveSmallIntegerField(null=True, blank=True)
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
-    description = models.CharField(max_length=512)
+    description = models.TextField()
     source = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, null=True, blank=True)
     book_section = models.ForeignKey(RecipeBookSection, on_delete=models.CASCADE, null=True, blank=True)
     estimated_total_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
@@ -83,7 +83,10 @@ class RecipeNote(models.Model):
 class RecipeStep(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_number = models.PositiveSmallIntegerField()
-    description = models.CharField(max_length=512)
+    description = models.CharField(max_length=4096)
+
+    def __str__(self):
+        return f"Step {self.step_number} - {self.recipe}"
 
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)

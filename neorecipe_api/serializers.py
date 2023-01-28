@@ -28,7 +28,7 @@ class RecipeIngredientSerializer(ModelSerializer):
     ingredient = IngredientSerializer()
     class Meta:
         model = RecipeIngredient
-        fields = ['recipe', 'ingredient', 'amount', 'amount_unit', 'preparation']
+        fields = ['ingredient', 'amount', 'amount_unit', 'preparation']
 
 class RecipeNoteSerializer(ModelSerializer):
     recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
@@ -37,17 +37,16 @@ class RecipeNoteSerializer(ModelSerializer):
         fields = ['recipe', 'note_contents']
 
 class RecipeStepSerializer(ModelSerializer):
-    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
     class Meta:
         model = RecipeStep
-        fields = ['recipe', 'step_number', 'description']
+        fields = ['step_number', 'description']
 
 class RecipeSerializer(ModelSerializer):
-    source = PrimaryKeyRelatedField(queryset=RecipeBook.objects.all())
+    source = StringRelatedField()
     book_section = PrimaryKeyRelatedField(queryset=RecipeBookSection.objects.all())
-    recipeingredient_set = RecipeIngredientSerializer(many=True)
-    recipestep_set = RecipeStepSerializer(many=True)
-    recipenote_set = RecipeNoteSerializer(many=True)
+    ingredients = RecipeIngredientSerializer(many=True, source="recipeingredient_set")
+    steps = RecipeStepSerializer(many=True, source="recipestep_set")
+    notes = RecipeNoteSerializer(many=True, source="recipenote_set")
 
     def validate(self, data):
         if not data.get('source', None) and not data.get('book_section', None):
@@ -55,7 +54,7 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'page', 'serves', 'recipestep_set', 'recipenote_set', 'recipeingredient_set', 'description', 'source', 'book_section', 'estimated_total_price']
+        fields = ['slug', 'title', 'page', 'serves', 'steps', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
     authors = StringRelatedField(many=True, read_only=True)
