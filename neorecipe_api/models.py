@@ -27,7 +27,9 @@ class RecipeBook(models.Model):
     title = models.CharField(max_length=255)
     isbn = models.CharField(max_length=128, unique=True)
     publisher = models.CharField(max_length=255, null = True, blank=True)
-    publication_date = models.DateField(null = True, blank=True)
+    publication_date = models.DateField(null=True, blank=True)
+    category = models.CharField(max_length=255, blank=True)
+    style = models.CharField(max_length=512, blank=True)
     authors = models.ManyToManyField(Writer, through='BookContributor')
 
     def __str__(self):
@@ -53,6 +55,8 @@ class Recipe(models.Model):
     serves = models.PositiveSmallIntegerField(null=True, blank=True)
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
     description = models.TextField()
+    preparation_time = models.TimeField(blank=True)
+    style = models.CharField(max_length=512, blank=True)
     source = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, null=True, blank=True)
     book_section = models.ForeignKey(RecipeBookSection, on_delete=models.CASCADE, null=True, blank=True)
     estimated_total_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)

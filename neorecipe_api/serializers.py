@@ -54,10 +54,10 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'page', 'serves', 'steps', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
+        fields = ['slug', 'title', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
     authors = StringRelatedField(many=True, read_only=True)
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'isbn', 'publisher', 'publication_date', 'authors']
+        fields = ['slug', 'title', 'isbn', 'category', 'style', 'publisher', 'publication_date', 'authors']
