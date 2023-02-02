@@ -19,17 +19,17 @@ class SingleFoodStoreView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return FoodStore.objects.filter(user = self.request.user)
 
-class WritersView(generics.ListCreateAPIView):
-    queryset = Writer.objects.all()
-    serializer_class = WriterSerializer
+class ContributorsView(generics.ListCreateAPIView):
+    queryset = BookContributor.objects.all()
+    serializer_class = ContributorSerializer
     filter_backends = [ filters.OrderingFilter ]
-    ordering_fields = ['first_name', 'last_name', 'full_name']
-    ordering = [ 'last_name', 'first_name' ]
+    ordering_fields = ['name', 'role']
+    ordering = [ 'name' ]
     permission_classes = [ OnlyStaffCanCreate ]
 
-class SingleWriterView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Writer.objects.all()
-    serializer_class = WriterSerializer
+class SingleContributorView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BookContributor.objects.all()
+    serializer_class = ContributorSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
 class IngredientsView(generics.ListCreateAPIView):
@@ -108,6 +108,7 @@ class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RecipeBook.objects.all()
     serializer_class = RecipeBookSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    lookup_field = 'slug'
 
 class RecommendedRecipesView(generics.ListAPIView):
     serializer_class = RecipeSerializer

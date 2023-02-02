@@ -7,16 +7,16 @@ class FoodStoreSerializer(ModelSerializer):
         model = FoodStore
         fields = ['user', 'slug', 'name', 'address']
 
-class WriterSerializer(ModelSerializer):
+class ContributorSerializer(ModelSerializer):
     class Meta:
-        model = Writer
-        fields = ['first_name', 'last_name', 'full_name']
+        model = BookContributor
+        fields = ['name', 'role']
 
 class RecipeBookSectionSerializer(ModelSerializer):
     book = PrimaryKeyRelatedField(queryset=RecipeBook.objects.all())
     class Meta:
         model = RecipeBookSection
-        fields = ['title', 'book']
+        fields = ['title']
 
 class IngredientSerializer(ModelSerializer):
     source = PrimaryKeyRelatedField(queryset=FoodStore.objects.all(), write_only=True)
@@ -57,7 +57,8 @@ class RecipeSerializer(ModelSerializer):
         fields = ['slug', 'title', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
-    authors = StringRelatedField(many=True, read_only=True)
+    contributors = StringRelatedField(many=True, read_only=True, source="bookcontributor_set")
+    sections = StringRelatedField(many=True, source="recipebooksection_set")
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'isbn', 'category', 'style', 'publisher', 'publication_date', 'authors']
+        fields = ['slug', 'title', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors']

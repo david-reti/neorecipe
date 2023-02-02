@@ -17,28 +17,27 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
-class Writer(models.Model):
-    full_name = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=True)
-
 class RecipeBook(models.Model):
     slug = models.SlugField(unique=True)
-    title = models.CharField(max_length=255)
     isbn = models.CharField(max_length=128, unique=True)
-    publisher = models.CharField(max_length=255, null = True, blank=True)
-    publication_date = models.DateField(null=True, blank=True)
-    category = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=255)
     style = models.CharField(max_length=512, blank=True)
-    authors = models.ManyToManyField(Writer, through='BookContributor')
+    category = models.CharField(max_length=255, blank=True)
+    publisher = models.CharField(max_length=255, null = True, blank=True)
+    description = models.TextField(blank=True)
+    publication_date = models.DateField(null=True, blank=True)
+    publicly_accessible = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} ({self.publisher})" 
 
 class BookContributor(models.Model):
-    writer = models.ForeignKey(Writer, on_delete=models.CASCADE)
     book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE)
-    role = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='')
+    role = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.role})"
 
 class RecipeBookSection(models.Model):
     title = models.CharField(max_length=255)
@@ -46,7 +45,7 @@ class RecipeBookSection(models.Model):
     book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.title} - {self.book}"
+        return self.title
 
 class Recipe(models.Model):
     slug = models.SlugField(unique=True)

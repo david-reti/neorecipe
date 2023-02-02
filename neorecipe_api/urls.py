@@ -4,8 +4,8 @@ from .views import *
 urlpatterns = [
     path('food-stores', FoodStoresView.as_view()),
     path('food-stores/<int:pk>', SingleFoodStoreView.as_view()),
-    path('writers', WritersView.as_view()),
-    path('writers/<int:pk>', SingleWriterView.as_view()),
+    path('contributors', ContributorsView.as_view()),
+    path('contributors/<int:pk>', SingleContributorView.as_view()),
     path('ingredients', IngredientsView.as_view()),
     path('ingredients/<int:pk>', SingleIngredientView.as_view()),
     path('recipes/<slug:source>', RecipesView.as_view()),
@@ -16,6 +16,6 @@ urlpatterns = [
     path('recipes/<int:recipe>/ingredients', RecipeIngredientsView.as_view()),
     path('recipes/<int:recipe>/ingredients/<int:pk>', SingleRecipeIngredientView.as_view()),
     path('recipe-books', RecipeBooksView.as_view()),
-    path('recipe-books/<int:pk>', SingleRecipeBookView.as_view()),
+    path('recipe-books/<slug:slug>', SingleRecipeBookView.as_view()),
     path('users/<int:pk>/recommended-recipes', RecommendedRecipesView.as_view()),
 ]
