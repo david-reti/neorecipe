@@ -19,7 +19,7 @@ class Ingredient(models.Model):
 
 class RecipeBook(models.Model):
     slug = models.SlugField(unique=True)
-    isbn = models.CharField(max_length=128, unique=True)
+    isbn = models.CharField(max_length=128, unique=True, blank=True)
     title = models.CharField(max_length=255)
     style = models.CharField(max_length=512, blank=True)
     category = models.CharField(max_length=255, blank=True)
