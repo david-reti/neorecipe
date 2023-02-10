@@ -97,12 +97,19 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
 class RecipeBooksView(generics.ListCreateAPIView):
-    queryset = RecipeBook.objects.all()
     serializer_class = RecipeBookSerializer
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'slug', 'title', 'publisher', 'publication_date' ]
     ordering = [ 'title' ]
     permission_classes = [ OnlyStaffCanCreate ]
+
+    def get_queryset(self):
+        books = RecipeBook.objects.all()
+        if 'title' in self.request.GET:
+            books = books.filter(title__icontains = self.request.GET['title'])
+        if 'category' in self.request.GET:
+            books = books.filter(category__iexact = self.request.GET['category'])
+        return books
 
 class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RecipeBook.objects.all()
