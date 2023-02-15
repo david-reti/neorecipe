@@ -87,14 +87,21 @@ class RecipesView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if 'source' in self.kwargs.keys():
-            return Recipe.objects.filter(book__id = self.kwargs.get('souce', 1))
-        else:
+            return Recipe.objects.filter(book__id = self.kwargs.get('source', 1))
+        elif 'book_section' in self.kwargs.keys():
             return Recipe.objects.filter(section__id = self.kwargs.get('book_section', 1))
+        else:
+            return Recipe.objects.all()
 
 class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = RecipeBook.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        if 'slug' in self.request.GET:
+            return Recipe.objects.filter(slug = self.request.GET['slug'])
+        return Recipe.objects.all()
 
 class RecipeBooksView(generics.ListCreateAPIView):
     serializer_class = RecipeBookSerializer
