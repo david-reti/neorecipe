@@ -52,6 +52,7 @@ class Recipe(models.Model):
     title = models.CharField(max_length=255)
     page = models.PositiveIntegerField(null=True, blank=True)
     serves = models.PositiveSmallIntegerField(null=True, blank=True)
+    category = models.CharField(max_length=256, blank=True)
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
     description = models.TextField()
     preparation_time = models.TimeField(blank=True)

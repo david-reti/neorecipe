@@ -86,12 +86,16 @@ class RecipesView(generics.ListCreateAPIView):
     permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
-        if 'source' in self.kwargs.keys():
-            return Recipe.objects.filter(book__id = self.kwargs.get('source', 1))
-        elif 'book_section' in self.kwargs.keys():
-            return Recipe.objects.filter(section__id = self.kwargs.get('book_section', 1))
-        else:
-            return Recipe.objects.all()
+        books = Recipe.objects.all()
+        if 'title' in self.request.GET:
+            books = books.filter(title__icontains = self.request.GET['title'])
+        if 'category' in self.request.GET:
+            books = books.filter(category__in = self.request.GET['category'].split(','))
+        if 'source' in self.request.GET:
+            books = books.filter(book__id = self.request.GET['source'])
+        if 'book_section' in self.request.GET:
+            books = books.filter(section__id = self.request.GET['book_section'])
+        return books
 
 class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeSerializer
