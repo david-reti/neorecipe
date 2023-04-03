@@ -40,6 +40,12 @@ class IngredientsView(generics.ListCreateAPIView):
     ordering = [ 'name' ]
     permission_classes = [ OnlyStaffCanCreate ]
 
+    def get_serializer(self, instance=None, data=None, partial=False):
+        if data is not None:
+            return super(IngredientsView, self).get_serializer(instance=instance, data=data, many=True, partial=partial)
+        else:
+            return super(IngredientsView, self).get_serializer(instance=instance, many=True, partial=partial)
+
 class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -53,13 +59,19 @@ class RecipeStepsView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('recipe', None)).steps.all()
+    
+    def get_serializer(self, instance=None, data=None, partial=False):
+        if data is not None:
+            return super(IngredientsView, self).get_serializer(instance=instance, data=data, many=True, partial=partial)
+        else:
+            return super(IngredientsView, self).get_serializer(instance=instance, many=True, partial=partial)
 
 class SingleRecipeStepView(mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = RecipeStepSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
     def get_queryset(self):
-        return Recipe.objects.get(self.kwargs.get('recipe', None)).steps.all()
+        return Recipe.objects.get(self.kwargs.get('slug', None)).steps.all()
 
 class RecipeIngredientsView(generics.ListCreateAPIView):
     serializer_class = RecipeIngredientSerializer
@@ -70,13 +82,19 @@ class RecipeIngredientsView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('recipe', None)).ingredients.all()
+    
+    def get_serializer(self, instance=None, data=None, partial=False):
+        if data is not None:
+            return super(IngredientsView, self).get_serializer(instance=instance, data=data, many=True, partial=partial)
+        else:
+            return super(IngredientsView, self).get_serializer(instance=instance, many=True, partial=partial)
 
 class SingleRecipeIngredientView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeIngredientSerializer
     permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
     def get_queryset(self):
-        return Recipe.objects.get(self.kwargs.get('recipe', None)).ingredients.all()
+        return Recipe.objects.get(self.kwargs.get('slug', None)).ingredients.all()
 
 class RecipesView(generics.ListCreateAPIView):
     serializer_class = RecipeSerializer

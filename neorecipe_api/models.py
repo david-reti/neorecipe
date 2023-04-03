@@ -8,8 +8,8 @@ class FoodStore(models.Model):
     address = models.CharField(max_length=512, blank=True)
 
 class Ingredient(models.Model):
-    slug = models.SlugField(unique=True)
     name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
     description = models.TextField(null=True, blank=True)
     average_price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     source = models.ForeignKey(FoodStore, on_delete=models.SET_NULL, null=True, blank=True)
@@ -48,14 +48,14 @@ class RecipeBookSection(models.Model):
         return self.title
 
 class Recipe(models.Model):
-    slug = models.SlugField(unique=True)
     title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=256)
     page = models.PositiveIntegerField(null=True, blank=True)
     serves = models.PositiveSmallIntegerField(null=True, blank=True)
     category = models.CharField(max_length=256, blank=True)
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
-    description = models.TextField()
-    preparation_time = models.TimeField(blank=True)
+    description = models.TextField(blank=True, null=True)
+    preparation_time = models.TimeField(blank=True, null=True)
     style = models.CharField(max_length=512, blank=True)
     source = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, null=True, blank=True)
     book_section = models.ForeignKey(RecipeBookSection, on_delete=models.CASCADE, null=True, blank=True)
