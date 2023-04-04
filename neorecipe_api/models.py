@@ -90,7 +90,7 @@ class RecipeStep(models.Model):
     description = models.CharField(max_length=4096)
 
     def __str__(self):
-        return f"Step {self.step_number} - {self.recipe}"
+        return f"Step {self.step_number + 1} - {self.recipe}"
 
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)

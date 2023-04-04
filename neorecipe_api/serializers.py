@@ -45,6 +45,7 @@ class RecipeStepSerializer(ModelSerializer):
 
 class RecipeSerializer(ModelSerializer):
     source = StringRelatedField()
+    source_slug = SlugField(write_only=True, allow_null=True)
     book_section = PrimaryKeyRelatedField(queryset=RecipeBookSection.objects.all(), required=False)
     ingredients = RecipeIngredientSerializer(many=True, source="recipeingredient_set")
     steps = RecipeStepSerializer(many=True, source="recipestep_set")
@@ -60,6 +61,12 @@ class RecipeSerializer(ModelSerializer):
         ingredients = validated_data.pop('recipeingredient_set')
 
         recipe = Recipe.objects.create(**validated_data)
+
+        if validated_data.get('source_slug', None):
+            recipe.source = RecipeBook.objects.get(slug=validated_data.pop('source_slug'))
+        else:
+            recipe.source = None
+
         for step in steps:
             RecipeStep.objects.create(recipe=recipe, **step)
         for recipe_ingredient in ingredients:
@@ -77,10 +84,18 @@ class RecipeSerializer(ModelSerializer):
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
 
+        if validated_data.get('source_slug', None):
+            instance.source = RecipeBook.objects.get(slug=validated_data.pop('source_slug'))
+        else:
+            instance.source = None
+
         step_list = []
         for step in steps:
             step, _ = RecipeStep.objects.get_or_create(recipe=instance, **step)
             step_list.append(step)
+
+        for step in set([step.description for step in instance.recipestep_set.all()]) - set([step.description for step in step_list]):
+            RecipeStep.objects.get(recipe=instance, description=step).delete()
 
         ingredient_list = []
         ingredient_slugs = [ingredient['ingredient']['slug'] for ingredient in ingredients]
@@ -101,7 +116,7 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'book_section', 'estimated_total_price']
+        fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
     contributors = StringRelatedField(many=True, read_only=True, source="bookcontributor_set")
