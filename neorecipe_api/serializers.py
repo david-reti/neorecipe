@@ -119,8 +119,41 @@ class RecipeSerializer(ModelSerializer):
         fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price']
 
 class RecipeBookSerializer(ModelSerializer):
-    contributors = StringRelatedField(many=True, read_only=True, source="bookcontributor_set")
+    contributors = StringRelatedField(many=True, read_only=True)
+    contributor_data = ContributorSerializer(many = True, write_only = True, required=False)
     sections = StringRelatedField(many=True, source="recipebooksection_set")
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        sections = validated_data.pop('sections', None)
+        contributors = validated_data.pop('contributors', None)
+        recipe_book = RecipeBook(**validated_data)
+
+        if contributors:
+            for contributor in contributors:
+                recipe_book.contributors.create(**contributor) 
+
+        recipe_book.save()
+        return recipe_book
+
+    @transaction.atomic()
+    def update(self, instance, validated_data):
+        sections = validated_data.pop('sections', None)
+        validated_data.pop('contributors', None)
+        validated_data.pop('recipebooksection_set', None)
+        contributors = validated_data.pop('contributor_data', None)
+        RecipeBook.objects.filter(pk=instance.id).update(**validated_data)
+
+        if contributors is not None:
+            for contributor in set([contributor.name for contributor in instance.contributors.all()]) - set([contributor['name'] for contributor in contributors]):
+                BookContributor.objects.get(book=instance, name=contributor).delete()
+
+            for contributor in set([contributor['name'] for contributor in contributors]) - set([contributor.name for contributor in instance.contributors.all()]):
+                instance.contributors.add(BookContributor.objects.create(book=instance, name=contributor, role='Contributor')) 
+
+        instance.save()
+        return instance
+
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors']
+        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors']

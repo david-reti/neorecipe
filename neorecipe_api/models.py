@@ -32,12 +32,12 @@ class RecipeBook(models.Model):
         return f"{self.title} ({self.publisher})" 
 
 class BookContributor(models.Model):
-    book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE)
+    book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, related_name='contributors')
     name = models.CharField(max_length=255, default='')
     role = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f"{self.name} ({self.role})"
+        return self.name
 
 class RecipeBookSection(models.Model):
     title = models.CharField(max_length=255)
