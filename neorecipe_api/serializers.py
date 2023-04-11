@@ -51,19 +51,21 @@ class RecipeSerializer(ModelSerializer):
     steps = RecipeStepSerializer(many=True, source="recipestep_set")
     notes = RecipeNoteSerializer(many=True, source="recipenote_set", required=False)
 
-    # def validate(self, data):
-    #     if not data.get('source', None) and not data.get('book_section', None):
-    #         raise ValidationError('Either the book or book section needs to be provided for the recipe.')
-
+    def validate(self, data):
+        if not data.get('source_slug', None) and not data.get('book_section_slug', None):
+            raise ValidationError('Either the book or book section needs to be provided for the recipe.')
+        return data
+    
     @transaction.atomic()
     def create(self, validated_data):
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
+        source_slug = validated_data.pop('source_slug', None)
 
         recipe = Recipe.objects.create(**validated_data)
 
-        if validated_data.get('source_slug', None):
-            recipe.source = RecipeBook.objects.get(slug=validated_data.pop('source_slug'))
+        if source_slug:
+            recipe.source = RecipeBook.objects.get(slug=source_slug)
         else:
             recipe.source = None
 
@@ -74,6 +76,7 @@ class RecipeSerializer(ModelSerializer):
             ingredient = Ingredient.objects.create(**ingredient_data)
             RecipeIngredient.objects.create(recipe=recipe, ingredient=ingredient, **recipe_ingredient)
         
+        recipe.save()
         return recipe
     
     @transaction.atomic()
@@ -124,12 +127,17 @@ class RecipeBookSerializer(ModelSerializer):
     contributors = StringRelatedField(many=True, read_only=True)
     contributor_data = ContributorSerializer(many = True, write_only = True, required=False)
     sections = StringRelatedField(many=True, source="recipebooksection_set")
+    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), write_only = True, required = False)
 
     @transaction.atomic()
     def create(self, validated_data):
         sections = validated_data.pop('sections', None)
         contributors = validated_data.pop('contributors', None)
+        validated_data.pop('recipebooksection_set', None)
+        contributors = validated_data.pop('contributor_data', None)
+
         recipe_book = RecipeBook(**validated_data)
+        recipe_book.save()
 
         if contributors:
             for contributor in contributors:
@@ -144,7 +152,11 @@ class RecipeBookSerializer(ModelSerializer):
         validated_data.pop('contributors', None)
         validated_data.pop('recipebooksection_set', None)
         contributors = validated_data.pop('contributor_data', None)
-        RecipeBook.objects.filter(pk=instance.id).update(**validated_data)
+
+        instance.isbn = validated_data.get('isbn', '')
+        instance.publisher = validated_data.get('publisher', '')
+        instance.category = validated_data.get('category', 'other')
+        instance.publicly_accessible = validated_data.get('publicly_accessible', False)
 
         if contributors is not None:
             for contributor in set([contributor.name for contributor in instance.contributors.all()]) - set([contributor['name'] for contributor in contributors]):
@@ -158,4 +170,4 @@ class RecipeBookSerializer(ModelSerializer):
 
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors']
+        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']

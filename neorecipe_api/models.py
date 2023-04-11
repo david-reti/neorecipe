@@ -22,6 +22,7 @@ class RecipeBook(models.Model):
     isbn = models.CharField(max_length=128, unique=True, blank=True)
     title = models.CharField(max_length=255)
     style = models.CharField(max_length=512, blank=True)
+    creator = models.ForeignKey('NeorecipeUser', on_delete=models.PROTECT)
     category = models.CharField(max_length=255, blank=True)
     publisher = models.CharField(max_length=255, null = True, blank=True)
     description = models.TextField(blank=True)
@@ -29,7 +30,7 @@ class RecipeBook(models.Model):
     publicly_accessible = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.title} ({self.publisher})" 
+        return f"{self.title}{' (' + self.publisher + ')' if self.publisher else ''}" 
 
 class BookContributor(models.Model):
     book = models.ForeignKey(RecipeBook, on_delete=models.CASCADE, related_name='contributors')
@@ -94,5 +95,6 @@ class RecipeStep(models.Model):
 
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)
+
     def __str__(self):
         return self.username

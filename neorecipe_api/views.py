@@ -105,7 +105,7 @@ class RecipesView(generics.ListCreateAPIView):
     permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
-        books = Recipe.objects.all()
+        books = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:
@@ -123,8 +123,8 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         if 'slug' in self.request.GET:
-            return Recipe.objects.filter(slug = self.request.GET['slug'])
-        return Recipe.objects.all()
+            return Recipe.objects.filter(Q(slug = self.request.GET['slug']), Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+        return Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
 
 class RecipeBooksView(generics.ListCreateAPIView):
     serializer_class = RecipeBookSerializer
@@ -134,12 +134,15 @@ class RecipeBooksView(generics.ListCreateAPIView):
     permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
-        books = RecipeBook.objects.filter(Q(publicly_accessible = True))
+        books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:
             books = books.filter(category__iexact = self.request.GET['category'])
         return books
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RecipeBook.objects.all()
