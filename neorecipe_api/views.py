@@ -1,6 +1,7 @@
 from rest_framework import generics, mixins, filters
 from .serializers import *
 from .permissions import *
+from django.db.models import Q
 
 class FoodStoresView(generics.ListCreateAPIView):
     serializer_class = FoodStoreSerializer
@@ -133,7 +134,7 @@ class RecipeBooksView(generics.ListCreateAPIView):
     permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
-        books = RecipeBook.objects.all()
+        books = RecipeBook.objects.filter(Q(publicly_accessible = True))
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:

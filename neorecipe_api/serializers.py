@@ -80,6 +80,8 @@ class RecipeSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
+        instance.category = validated_data.get('category', instance.category)
+        instance.serves = validated_data.get('serves', instance.serves)
 
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
