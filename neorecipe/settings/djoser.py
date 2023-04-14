@@ -10,5 +10,6 @@ DJOSER = {
     "SET_USERNAME_RETYPE": True,
     "SET_PASSWORD_RETYPE": True,
     "SEND_ACTIVATION_EMAIL": True,
-    "ACTIVATION_URL": 'activate/{uid}/{token}',
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "PASSWORD_RESET_CONFIRM_URL": "reset-password/{uid}/{token}"
 }
