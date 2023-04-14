@@ -136,3 +136,15 @@ DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = { 'location': './backup' }
 
 AUTH_USER_MODEL = 'neorecipe_api.NeorecipeUser'
+
+EMAIL_HOST = env.str('NEORECIPE_EMAIL_HOST', 'localhost')
+EMAIL_PORT = 587
+EMAIL_HOST_USER=env.str('NEORECIPE_EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD=env.str('NEORECIPE_EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = True
+
+DEFAULT_FROM_EMAIL = env.str('NEORECIPE_EMAIL_ORIGIN', 'webmaster@localhost')
+
+SITE_NAME = 'Neorecipe'
+
+DOMAIN = env.str('NEORECIPE_FRONTEND_URL', '127.0.0.1:4200')
