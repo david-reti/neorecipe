@@ -29,7 +29,9 @@ SECRET_KEY = env.str('NEORECIPE_DJANGO_SECRET_KEY', default='')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('NEORECIPE_DEBUG_ENABLED', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    env.str('NEORECIPE_HOST', '')
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -78,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'neorecipe.wsgi.application'
 
-CORS_ALLOWED_ORIGIN_REGEXES =  [ env.str('NEORECIPE_ALLOWED_HOSTS_REGEX', '') ]
+CORS_ALLOWED_ORIGIN_REGEXES =  [ env.str('NEORECIPE_ALLOWED_ORIGINS_REGEX', '') ]
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -156,3 +158,9 @@ DEFAULT_FROM_EMAIL = env.str('NEORECIPE_EMAIL_ORIGIN', 'webmaster@localhost')
 SITE_NAME = 'Neorecipe'
 
 DOMAIN = env.str('NEORECIPE_FRONTEND_URL', '127.0.0.1:4200')
+
+SESSION_COOKIE_SECURE = not DEBUG
+
+SECURE_SSL_REDIRECT = not DEBUG
+
+CSRF_COOKIE_SECURE = not DEBUG

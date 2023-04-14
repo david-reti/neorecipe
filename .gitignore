@@ -2,4 +2,5 @@ backup
 
 *.sqlite3
 *.env
+*.old
 **/__pycache__
