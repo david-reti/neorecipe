@@ -85,8 +85,16 @@ CORS_ALLOWED_ORIGIN_REGEXES =  [ env.str('NEORECIPE_ALLOWED_HOSTS_REGEX', '') ]
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': f'{BASE_DIR}/db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'CONN_MAX_AGE': 120,
+        'HOST': env.str('NEORECIPE_DATABASE_HOST', ''),
+        'NAME': env.str('NEORECIPE_DATABASE_NAME'),
+        'USER': env.str('NEORECIPE_DATABASE_USER', ''),
+        'PASSWORD': env.str('NEORECIPE_DATABASE_PASSWORD', ''),
+        'PORT': env.int('NEORECIPE_DATABASE_PORT'),
+        'OPTIONS': {
+            "user": 'neorecipe'
+        }
     }
 }
 

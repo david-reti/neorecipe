@@ -8,14 +8,14 @@ class FoodStoresView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'name', 'address' ]
     ordering = [ 'name' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
         return FoodStore.objects.filter(user = self.request.user)
 
 class SingleFoodStoreView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FoodStoreSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
     def get_queryset(self):
         return FoodStore.objects.filter(user = self.request.user)
@@ -26,12 +26,12 @@ class ContributorsView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = ['name', 'role']
     ordering = [ 'name' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
 class SingleContributorView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BookContributor.objects.all()
     serializer_class = ContributorSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
 class IngredientsView(generics.ListCreateAPIView):
     queryset = Ingredient.objects.all()
@@ -39,7 +39,7 @@ class IngredientsView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'name', 'average_price' ]
     ordering = [ 'name' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_serializer(self, instance=None, data=None, partial=False):
         if data is not None:
@@ -50,13 +50,13 @@ class IngredientsView(generics.ListCreateAPIView):
 class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
 class RecipeStepsView(generics.ListCreateAPIView):
     serializer_class = RecipeStepSerializer
     filter_backends = [ filters.OrderingFilter ]
     ordering = [ 'step_number' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('recipe', None)).steps.all()
@@ -69,7 +69,7 @@ class RecipeStepsView(generics.ListCreateAPIView):
 
 class SingleRecipeStepView(mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = RecipeStepSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('slug', None)).steps.all()
@@ -79,7 +79,7 @@ class RecipeIngredientsView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = ['ingredient__name', 'amount']
     ordering = [ 'ingredient__name' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('recipe', None)).ingredients.all()
@@ -92,7 +92,7 @@ class RecipeIngredientsView(generics.ListCreateAPIView):
 
 class SingleRecipeIngredientView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeIngredientSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
 
     def get_queryset(self):
         return Recipe.objects.get(self.kwargs.get('slug', None)).ingredients.all()
@@ -102,7 +102,7 @@ class RecipesView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'title', 'page', 'serves', 'estimated_total_price' ]
     ordering = [ 'title' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
         books = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
@@ -118,7 +118,7 @@ class RecipesView(generics.ListCreateAPIView):
 
 class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
     lookup_field = 'slug'
 
     def get_queryset(self):
@@ -131,7 +131,7 @@ class RecipeBooksView(generics.ListCreateAPIView):
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'slug', 'title', 'publisher', 'publication_date' ]
     ordering = [ 'title' ]
-    permission_classes = [ OnlyStaffCanCreate ]
+    # permission_classes = [ OnlyStaffCanCreate ]
 
     def get_queryset(self):
         books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
@@ -147,7 +147,7 @@ class RecipeBooksView(generics.ListCreateAPIView):
 class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RecipeBook.objects.all()
     serializer_class = RecipeBookSerializer
-    permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
+    # permission_classes = [ OnlyStaffCanUpdate, OnlyStaffCanDelete ]
     lookup_field = 'slug'
 
 class RecommendedRecipesView(generics.ListAPIView):
