@@ -105,7 +105,11 @@ class RecipesView(generics.ListCreateAPIView):
     permission_classes = [ AnyoneCanView, AnyoneCanCreate ]
 
     def get_queryset(self):
-        books = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+        if self.request.user.is_anonymous:
+            books = Recipe.objects.filter(Q(source__publicly_accessible = True))
+        else:    
+            books = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:
@@ -134,7 +138,11 @@ class RecipeBooksView(generics.ListCreateAPIView):
     permission_classes = [ AnyoneCanView, AnyoneCanCreate ]
 
     def get_queryset(self):
-        books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
+        if self.request.user.is_anonymous:
+            books = RecipeBook.objects.filter(Q(publicly_accessible = True))
+        else:    
+            books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
+            
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:
