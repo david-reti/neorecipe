@@ -2,5 +2,7 @@ backup
 
 *.sqlite3
 *.env
+*.prod
+*.conf
 *.old
 **/__pycache__

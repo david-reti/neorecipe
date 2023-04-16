@@ -1,9 +1,17 @@
 from rest_framework.permissions import BasePermission
 
+class AnyoneCanView(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
 class OnlyStaffCanCreate(BasePermission):
     def has_permission(self, request, view):
         if request.method == 'POST':
             return request.user.is_staff
+        return True
+
+class AnyoneCanCreate(BasePermission):
+    def has_permission(self, request, view):
         return True
 
 class OnlyStaffCanUpdate(BasePermission):
@@ -12,8 +20,28 @@ class OnlyStaffCanUpdate(BasePermission):
             return request.user.is_staff
         return True
 
+class AnyoneCanUpdate(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
 class OnlyStaffCanDelete(BasePermission):
     def has_permission(self, request, view):
         if request.method == 'DELETE':
             return request.user.is_staff
+        return True
+    
+class AnyoneCanDelete(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
+class OwnerAndStaffCanUpdate(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'PUT' or request.method == 'POST':
+            return request.user == obj.owner or request.user.is_staff
+        return True
+
+class OwnerAndStaffCanDelete(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'DELETE':
+            return request.user == obj.owner or request.user.is_staff
         return True
