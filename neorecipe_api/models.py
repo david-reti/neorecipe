@@ -95,7 +95,7 @@ class RecipeStep(models.Model):
 
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)
-    userprefs = models.TextField()
+    userprefs = models.TextField(default='')
 
     def __str__(self):
         return self.username

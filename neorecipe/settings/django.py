@@ -29,12 +29,10 @@ SECRET_KEY = env.str('NEORECIPE_DJANGO_SECRET_KEY', default='')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('NEORECIPE_DEBUG_ENABLED', default=False)
 
-if not DEBUG:
-    ALLOWED_HOSTS = [
-        env.str('NEORECIPE_HOST', '')
-    ]
-else:
-    ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'neorecipe.app',
+    'www.neorecipe.app'
+]
 
 # Application definition
 INSTALLED_APPS = [
