@@ -172,3 +172,8 @@ class RecipeBookSerializer(ModelSerializer):
     class Meta:
         model = RecipeBook
         fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']
+
+class UserPrefsSerializer(ModelSerializer):
+    class Meta:
+        model = NeorecipeUser
+        fields = ['userprefs']

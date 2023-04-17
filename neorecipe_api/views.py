@@ -161,6 +161,11 @@ class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ OwnerAndStaffCanUpdate, OwnerAndStaffCanDelete ]
     lookup_field = 'slug'
 
+class UserPrefsView(generics.RetrieveUpdateAPIView):
+    queryset = NeorecipeUser.objects.all()
+    permission_classes = [ OnlyCurrentUserAndStaffCanView, OnlyCurrentUserAndStaffCanUpdate ]
+    serializer_class = UserPrefsSerializer
+
 # class RecommendedRecipesView(generics.ListAPIView):
 #     serializer_class = RecipeSerializer
 #     filter_backends = [ filters.OrderingFilter ]
