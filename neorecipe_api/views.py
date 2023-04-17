@@ -119,6 +119,9 @@ class RecipesView(generics.ListCreateAPIView):
         if 'book_section' in self.request.GET:
             books = books.filter(section__id = self.request.GET['book_section'])
         return books
+    
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeSerializer
@@ -142,7 +145,7 @@ class RecipeBooksView(generics.ListCreateAPIView):
             books = RecipeBook.objects.filter(Q(publicly_accessible = True))
         else:    
             books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
-            
+
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:

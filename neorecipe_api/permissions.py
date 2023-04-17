@@ -37,11 +37,11 @@ class AnyoneCanDelete(BasePermission):
 class OwnerAndStaffCanUpdate(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method == 'PUT' or request.method == 'POST':
-            return request.user == obj.owner or request.user.is_staff
+            return request.user == obj.creator or request.user.is_staff
         return True
 
 class OwnerAndStaffCanDelete(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method == 'DELETE':
-            return request.user == obj.owner or request.user.is_staff
+            return request.user == obj.creator or request.user.is_staff
         return True

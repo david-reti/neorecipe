@@ -53,6 +53,7 @@ class Recipe(models.Model):
     slug = models.SlugField(unique=True, max_length=256)
     page = models.PositiveIntegerField(null=True, blank=True)
     serves = models.PositiveSmallIntegerField(null=True, blank=True)
+    creator = models.ForeignKey('NeorecipeUser', on_delete=models.PROTECT)
     category = models.CharField(max_length=256, blank=True)
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
     description = models.TextField(blank=True, null=True)

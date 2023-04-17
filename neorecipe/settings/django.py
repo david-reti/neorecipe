@@ -30,8 +30,8 @@ SECRET_KEY = env.str('NEORECIPE_DJANGO_SECRET_KEY', default='')
 DEBUG = env.bool('NEORECIPE_DEBUG_ENABLED', default=False)
 
 ALLOWED_HOSTS = [
-    'neorecipe.app',
-    'www.neorecipe.app'
+    '127.0.0.1',
+    'localhost'
 ]
 
 # Application definition

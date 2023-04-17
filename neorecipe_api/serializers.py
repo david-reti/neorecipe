@@ -49,6 +49,7 @@ class RecipeSerializer(ModelSerializer):
     book_section = PrimaryKeyRelatedField(queryset=RecipeBookSection.objects.all(), required=False)
     ingredients = RecipeIngredientSerializer(many=True, source="recipeingredient_set")
     steps = RecipeStepSerializer(many=True, source="recipestep_set")
+    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), write_only = True, required = False)
     notes = RecipeNoteSerializer(many=True, source="recipenote_set", required=False)
 
     def validate(self, data):
@@ -121,7 +122,7 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price']
+        fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price', 'creator']
 
 class RecipeBookSerializer(ModelSerializer):
     contributors = StringRelatedField(many=True, read_only=True)
