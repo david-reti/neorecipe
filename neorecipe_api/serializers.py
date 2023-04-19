@@ -171,7 +171,7 @@ class RecipeBookSerializer(ModelSerializer):
 
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']
+        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'approved', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']
 
 class UserPrefsSerializer(ModelSerializer):
     class Meta:

@@ -30,8 +30,8 @@ SECRET_KEY = env.str('NEORECIPE_DJANGO_SECRET_KEY', default='')
 DEBUG = env.bool('NEORECIPE_DEBUG_ENABLED', default=False)
 
 ALLOWED_HOSTS = [
-    'neorecipe.app',
-    'www.neorecipe.app'
+    '127.0.0.1',
+    'localhost'
 ]
 
 # Application definition
@@ -138,6 +138,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(os.path.normpath(os.path.dirname(__file__)), 'static')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -165,3 +167,8 @@ DOMAIN = env.str('NEORECIPE_FRONTEND_URL', '127.0.0.1:4200')
 # SECURE_SSL_REDIRECT = not DEBUG
 
 # CSRF_COOKIE_SECURE = not DEBUG
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.neorecipe.app',
+    'https://neorecipe.app'
+]

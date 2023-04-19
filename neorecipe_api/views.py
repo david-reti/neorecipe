@@ -2,6 +2,7 @@ from rest_framework import generics, mixins, filters
 from .serializers import *
 from .permissions import *
 from django.db.models import Q
+from django.core.mail import send_mail
 
 class FoodStoresView(generics.ListCreateAPIView):
     serializer_class = FoodStoreSerializer
@@ -142,9 +143,11 @@ class RecipeBooksView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
-            books = RecipeBook.objects.filter(Q(publicly_accessible = True))
+            books = RecipeBook.objects.filter(Q(publicly_accessible = True) & Q(approved = True))
+        elif self.request.user.is_staff:
+            books = RecipeBook.objects.all()
         else:    
-            books = RecipeBook.objects.filter(Q(publicly_accessible = True) | Q(creator = self.request.user))
+            books = RecipeBook.objects.filter(Q(Q(publicly_accessible = True) & Q(approved = True)) | Q(creator = self.request.user))
 
         if 'title' in self.request.GET:
             books = books.filter(title__icontains = self.request.GET['title'])
@@ -153,6 +156,13 @@ class RecipeBooksView(generics.ListCreateAPIView):
         return books
 
     def perform_create(self, serializer):
+        if serializer.validated_data.get('publicly_accessible', False) == True:
+            staff = NeorecipeUser.objects.get(is_staff = True)
+            send_mail(f"Approve Recipe Book: {serializer.validated_data.get('slug', 'ERROR: BOOK NOT PROVIDED')}", 
+                      f"Please take a look and approve the recipe book with slug: {serializer.validated_data.get('slug', '')}",
+                      "infra@neorecipe.app",
+                      [ staff.email ])
+
         serializer.save(creator=self.request.user)
 
 class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):

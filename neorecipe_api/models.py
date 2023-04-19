@@ -19,7 +19,7 @@ class Ingredient(models.Model):
 
 class RecipeBook(models.Model):
     slug = models.SlugField(unique=True)
-    isbn = models.CharField(max_length=128, unique=True, blank=True)
+    isbn = models.CharField(max_length=128, blank=True)
     title = models.CharField(max_length=255)
     style = models.CharField(max_length=512, blank=True)
     creator = models.ForeignKey('NeorecipeUser', on_delete=models.PROTECT)
@@ -28,6 +28,7 @@ class RecipeBook(models.Model):
     description = models.TextField(blank=True)
     publication_date = models.DateField(null=True, blank=True)
     publicly_accessible = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title}{' (' + self.publisher + ')' if self.publisher else ''}" 
