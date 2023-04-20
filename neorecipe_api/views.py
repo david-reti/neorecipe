@@ -1,4 +1,5 @@
 from rest_framework import generics, mixins, filters
+from rest_framework.response import Response
 from .serializers import *
 from .permissions import *
 from django.db.models import Q
@@ -107,19 +108,21 @@ class RecipesView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
-            books = Recipe.objects.filter(Q(source__publicly_accessible = True))
+            recipes = Recipe.objects.filter(Q(source__publicly_accessible = True))
+        elif self.request.user.is_staff:
+            recipes = Recipe.objects.all()
         else:    
-            books = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+            recipes = Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
 
         if 'title' in self.request.GET:
-            books = books.filter(title__icontains = self.request.GET['title'])
+            recipes = recipes.filter(title__icontains = self.request.GET['title'])
         if 'category' in self.request.GET:
-            books = books.filter(category__in = self.request.GET['category'].split(','))
+            recipes = recipes.filter(category__in = self.request.GET['category'].split(','))
         if 'source' in self.request.GET:
-            books = books.filter(book__id = self.request.GET['source'])
+            recipes = recipes.filter(book__id = self.request.GET['source'])
         if 'book_section' in self.request.GET:
-            books = books.filter(section__id = self.request.GET['book_section'])
-        return books
+            recipes = recipes.filter(section__id = self.request.GET['book_section'])
+        return recipes
     
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
@@ -130,9 +133,17 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Recipe.objects.all()
         if 'slug' in self.request.GET:
             return Recipe.objects.filter(Q(slug = self.request.GET['slug']), Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
         return Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+
+    def get(self, request, *args, **kwargs):
+        serializer = RecipeSerializer(self.get_queryset().get(slug = kwargs['slug']))
+        to_return = serializer.data.copy()
+        to_return['user_can_edit'] = request.user.pk == serializer.data.get('creator') or request.user.is_staff
+        return Response(to_return)
 
 class RecipeBooksView(generics.ListCreateAPIView):
     serializer_class = RecipeBookSerializer
@@ -170,6 +181,12 @@ class SingleRecipeBookView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RecipeBookSerializer
     permission_classes = [ OwnerAndStaffCanUpdate, OwnerAndStaffCanDelete ]
     lookup_field = 'slug'
+
+    def get(self, request, *args, **kwargs):
+        serializer = RecipeBookSerializer(self.get_queryset().get(slug = kwargs['slug']))
+        to_return = serializer.data.copy()
+        to_return['user_can_edit'] = request.user.is_staff or request.user.pk == serializer.data.get('creator')
+        return Response(to_return)
 
 class UserPrefsView(generics.RetrieveUpdateAPIView):
     queryset = NeorecipeUser.objects.all()

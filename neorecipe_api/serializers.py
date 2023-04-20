@@ -49,8 +49,9 @@ class RecipeSerializer(ModelSerializer):
     book_section = PrimaryKeyRelatedField(queryset=RecipeBookSection.objects.all(), required=False)
     ingredients = RecipeIngredientSerializer(many=True, source="recipeingredient_set")
     steps = RecipeStepSerializer(many=True, source="recipestep_set")
-    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), write_only = True, required = False)
+    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), required = False)
     notes = RecipeNoteSerializer(many=True, source="recipenote_set", required=False)
+    user_can_edit = BooleanField(read_only=True, default=False)
 
     def validate(self, data):
         if not data.get('source_slug', None) and not data.get('book_section_slug', None):
@@ -122,13 +123,14 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'category', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price', 'creator']
+        fields = ['slug', 'title', 'category', 'user_can_edit', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price', 'creator']
 
 class RecipeBookSerializer(ModelSerializer):
     contributors = StringRelatedField(many=True, read_only=True)
     contributor_data = ContributorSerializer(many = True, write_only = True, required=False)
     sections = StringRelatedField(many=True, source="recipebooksection_set")
-    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), write_only = True, required = False)
+    creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), required = False)
+    user_can_edit = BooleanField(read_only=True, default=False)
 
     @transaction.atomic()
     def create(self, validated_data):
@@ -171,7 +173,7 @@ class RecipeBookSerializer(ModelSerializer):
 
     class Meta:
         model = RecipeBook
-        fields = ['slug', 'title', 'contributor_data', 'description', 'sections', 'isbn', 'publicly_accessible', 'approved', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']
+        fields = ['slug', 'title', 'contributor_data', 'user_can_edit', 'description', 'sections', 'isbn', 'publicly_accessible', 'approved', 'category', 'style', 'publisher', 'publication_date', 'contributors', 'creator']
 
 class UserPrefsSerializer(ModelSerializer):
     class Meta:

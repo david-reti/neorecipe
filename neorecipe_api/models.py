@@ -74,7 +74,7 @@ class Article(models.Model):
     contents = models.TextField()
 
 class RecipeIngredient(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, default=0, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=16, decimal_places=2)
     amount_unit = models.CharField(max_length=128)
@@ -97,6 +97,7 @@ class RecipeStep(models.Model):
 
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)
+    pantry_items = models.ManyToManyField(RecipeIngredient)
     userprefs = models.TextField(default='')
 
     def __str__(self):
