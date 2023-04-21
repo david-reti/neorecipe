@@ -117,7 +117,7 @@ class RecipeSerializer(ModelSerializer):
             ingredient_list.append(new_recipe_ingredient)
 
         for ingredient_to_remove in set([ingredient.ingredient.slug for ingredient in instance.recipeingredient_set.all()]) - set(ingredient_slugs):
-            RecipeIngredient.objects.get(ingredient__slug=ingredient_to_remove).delete()
+            RecipeIngredient.objects.get(recipe=instance, ingredient__slug=ingredient_to_remove).delete()
 
         instance.steps = step_list
         instance.recipeingredient_set.set(ingredient_list, clear=True)
@@ -183,3 +183,37 @@ class UserPrefsSerializer(ModelSerializer):
     class Meta:
         model = NeorecipeUser
         fields = ['userprefs']
+
+class PantryItemSerializer(ModelSerializer):
+    ingredient = IngredientSerializer()
+
+    class Meta:
+        model = PantryItem
+        fields = ['ingredient', 'amount', 'amount_unit']
+
+class UserPantrySerializer(ModelSerializer):
+    pantry_items = PantryItemSerializer(many = True, source='pantryitem_set')
+
+    @transaction.atomic()
+    def update(self, instance, validated_data):
+        selected_ingredients = []
+
+        items_to_remove = set([item.ingredient.slug for item in instance.pantryitem_set.all()]) - set([item['ingredient']['slug'] for item in validated_data['pantryitem_set']])
+        for pantry_item in validated_data['pantryitem_set']:
+            ingredient_details = pantry_item.pop('ingredient')
+            pantry_item.pop('preparation', '')
+            pantry_item.pop('completed', '')
+            new_ingredient, _ = Ingredient.objects.get_or_create(**ingredient_details)
+            new_pantry_item, _ = PantryItem.objects.get_or_create(user = validated_data['creator'], ingredient = new_ingredient, **pantry_item)
+            selected_ingredients.append(new_pantry_item)
+
+        for item in items_to_remove:
+            instance.pantryitem_set.get(ingredient__slug = item).delete()
+
+        instance.pantryitem_set.set(selected_ingredients, clear = True)
+        
+        return instance
+
+    class Meta:
+        model = NeorecipeUser
+        fields = ['pantry_items']

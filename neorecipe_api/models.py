@@ -95,9 +95,17 @@ class RecipeStep(models.Model):
     def __str__(self):
         return f"Step {self.step_number + 1} - {self.recipe}"
 
+class PantryItem(models.Model):
+    user = models.ForeignKey('NeorecipeUser', on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=16, decimal_places=2)
+    amount_unit = models.CharField(max_length=128)
+
+    def __str__(self) -> str:
+        return f"{self.ingredient} in {self.user}'s pantry"
+
 class NeorecipeUser(AbstractUser):
     recommended_recipes = models.ManyToManyField(Recipe)
-    pantry_items = models.ManyToManyField(RecipeIngredient)
     userprefs = models.TextField(default='')
 
     def __str__(self):

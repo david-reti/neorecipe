@@ -192,17 +192,20 @@ class UserPrefsView(generics.RetrieveUpdateAPIView):
     permission_classes = [ OnlyCurrentUserAndStaffCanView, OnlyCurrentUserAndStaffCanUpdate ]
     serializer_class = UserPrefsSerializer
 
-# class RecommendedRecipesView(generics.ListAPIView):
-#     serializer_class = RecipeSerializer
-#     filter_backends = [ filters.OrderingFilter ]
-#     ordering_fields = [ 'title', 'page', 'serves', 'estimated_total_price' ]
-#     ordering = [ 'title' ]
+class RecommendedRecipesView(generics.ListAPIView):
+    serializer_class = RecipeSerializer
+    filter_backends = [ filters.OrderingFilter ]
+    ordering_fields = [ 'title', 'page', 'serves', 'estimated_total_price' ]
+    ordering = [ 'title' ]
 
-#     def get_queryset(self):
-#         return Recipe.objects.all()
+    def get_queryset(self):
+        return Recipe.objects.all()
 
-class PantryItemsView(generics.ListCreateAPIView):
-    queryset = NeorecipeUser.objects.all()
-
-class SinglePantryItemView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = NeorecipeUser.objects.all()
+class UserPantryView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = UserPantrySerializer
+    
+    def get_queryset(self):
+        return NeorecipeUser.objects.filter(id=self.kwargs['pk'])
+    
+    def perform_update(self, serializer):
+        serializer.save(creator = self.request.user)

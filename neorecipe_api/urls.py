@@ -15,5 +15,6 @@ urlpatterns = [
     path('recipe-books', RecipeBooksView.as_view()),
     path('recipe-books/<slug:slug>', SingleRecipeBookView.as_view()),
     path('users/<int:pk>/preferences', UserPrefsView.as_view()),
-    #path('users/<int:pk>/recommended-recipes', RecommendedRecipesView.as_view()),
+    path('users/<int:pk>/pantry', UserPantryView.as_view()),
+    path('users/<int:pk>/recommended-recipes', RecommendedRecipesView.as_view()),
 ]
