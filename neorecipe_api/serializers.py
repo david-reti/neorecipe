@@ -73,11 +73,15 @@ class RecipeSerializer(ModelSerializer):
 
         for step in steps:
             RecipeStep.objects.create(recipe=recipe, **step)
+       
+        ingredient_list = []
         for recipe_ingredient in ingredients:
             ingredient_data = recipe_ingredient.pop('ingredient')
-            ingredient = Ingredient.objects.create(**ingredient_data)
-            RecipeIngredient.objects.create(recipe=recipe, ingredient=ingredient, **recipe_ingredient)
+            new_ingredient, _ = Ingredient.objects.get_or_create(**ingredient_data)
+            new_recipe_ingredient, _ = RecipeIngredient.objects.get_or_create(recipe=recipe, ingredient=new_ingredient, **recipe_ingredient)
+            ingredient_list.append(new_recipe_ingredient)
         
+        recipe.recipeingredient_set.set(ingredient_list, clear=True)
         recipe.save()
         return recipe
     

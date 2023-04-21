@@ -36,18 +36,17 @@ class SingleContributorView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ AnyoneCanView, AnyoneCanUpdate, OnlyStaffCanDelete ]
 
 class IngredientsView(generics.ListCreateAPIView):
-    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = [ filters.OrderingFilter ]
     ordering_fields = [ 'name', 'average_price' ]
     ordering = [ 'name' ]
     permission_classes = [ AnyoneCanView, AnyoneCanCreate ]
 
-    def get_serializer(self, instance=None, data=None, partial=False):
-        if data is not None:
-            return super(IngredientsView, self).get_serializer(instance=instance, data=data, many=True, partial=partial)
-        else:
-            return super(IngredientsView, self).get_serializer(instance=instance, many=True, partial=partial)
+    def get_queryset(self):
+        ingredients = Ingredient.objects.all()
+        if 'name' in self.request.GET:
+            ingredients = ingredients.filter(name__icontains = self.request.GET['name'])
+        return ingredients
 
 class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ingredient.objects.all()
@@ -201,3 +200,9 @@ class UserPrefsView(generics.RetrieveUpdateAPIView):
 
 #     def get_queryset(self):
 #         return Recipe.objects.all()
+
+class PantryItemsView(generics.ListCreateAPIView):
+    queryset = NeorecipeUser.objects.all()
+
+class SinglePantryItemView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = NeorecipeUser.objects.all()
