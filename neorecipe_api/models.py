@@ -95,6 +95,14 @@ class RecipeStep(models.Model):
     def __str__(self):
         return f"Step {self.step_number + 1} - {self.recipe}"
 
+class RecommendedRecipe(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    user = models.ForeignKey('NeorecipeUser', on_delete=models.CASCADE)
+    strength = models.IntegerField(default=0)
+
+    def __str__(self) -> str:
+        return f"Recommendation: {self.recipe} for {self.user}"
+
 class PantryItem(models.Model):
     user = models.ForeignKey('NeorecipeUser', on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)

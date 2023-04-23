@@ -217,3 +217,8 @@ class UserPantrySerializer(ModelSerializer):
     class Meta:
         model = NeorecipeUser
         fields = ['pantry_items']
+
+class RecommendedRecipeSerializer(ModelSerializer):
+    class Meta:
+        model = RecommendedRecipe
+        fields = ['user', 'recipe']
