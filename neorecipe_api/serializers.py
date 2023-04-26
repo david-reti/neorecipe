@@ -52,6 +52,8 @@ class RecipeSerializer(ModelSerializer):
     creator = PrimaryKeyRelatedField(queryset = NeorecipeUser.objects.all(), required = False)
     notes = RecipeNoteSerializer(many=True, source="recipenote_set", required=False)
     user_can_edit = BooleanField(read_only=True, default=False)
+    contributor = StringRelatedField()
+    contributor_name = CharField(write_only = True, default = "")
 
     def validate(self, data):
         if not data.get('source_slug', None) and not data.get('book_section_slug', None):
@@ -63,11 +65,21 @@ class RecipeSerializer(ModelSerializer):
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
         source_slug = validated_data.pop('source_slug', None)
+        contributor_name = validated_data.pop('contributor_name', None)
 
         recipe = Recipe.objects.create(**validated_data)
 
         if source_slug:
             recipe.source = RecipeBook.objects.get(slug=source_slug)
+            if contributor_name:
+                new_contributor, _ = BookContributor.objects.get_or_create( book=recipe.source, 
+                                                                            name = contributor_name, 
+                                                                            defaults={  'book': recipe.source,
+                                                                                        'name': contributor_name,
+                                                                                        'role': 'Recipe Contributor'})
+                recipe.contributor = new_contributor
+            else:
+                recipe.contributor = None
         else:
             recipe.source = None
 
@@ -78,7 +90,9 @@ class RecipeSerializer(ModelSerializer):
         for recipe_ingredient in ingredients:
             ingredient_data = recipe_ingredient.pop('ingredient')
             new_ingredient, _ = Ingredient.objects.get_or_create(**ingredient_data)
-            new_recipe_ingredient, _ = RecipeIngredient.objects.get_or_create(recipe=recipe, ingredient=new_ingredient, **recipe_ingredient)
+            new_recipe_ingredient, _ = RecipeIngredient.objects.get_or_create(  recipe=recipe, 
+                                                                                ingredient=new_ingredient, 
+                                                                                defaults=recipe_ingredient)
             ingredient_list.append(new_recipe_ingredient)
         
         recipe.recipeingredient_set.set(ingredient_list, clear=True)
@@ -94,9 +108,17 @@ class RecipeSerializer(ModelSerializer):
 
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
+        contributor_name = validated_data.pop('contributor_name', None)
 
         if validated_data.get('source_slug', None):
             instance.source = RecipeBook.objects.get(slug=validated_data.pop('source_slug'))
+            if contributor_name:
+                new_contributor, _ = BookContributor.objects.get_or_create( book = instance.source, 
+                                                                            name = contributor_name, 
+                                                                            role = 'Recipe Contributor')
+                instance.contributor = new_contributor
+            else:
+                instance.contributor = None
         else:
             instance.source = None
 
@@ -113,7 +135,15 @@ class RecipeSerializer(ModelSerializer):
         for recipe_ingredient in ingredients:
             ingredient_data = recipe_ingredient.pop('ingredient')
             new_ingredient, _ = Ingredient.objects.get_or_create(**ingredient_data)
-            new_recipe_ingredient, _ = RecipeIngredient.objects.get_or_create(recipe=instance, ingredient=new_ingredient, **recipe_ingredient)
+            new_recipe_ingredient, created = RecipeIngredient.objects.get_or_create(recipe=instance, 
+                                                                                    ingredient=new_ingredient, 
+                                                                                    defaults=recipe_ingredient)
+            if not created:
+                new_recipe_ingredient.amount = recipe_ingredient['amount']
+                new_recipe_ingredient.amount_unit = recipe_ingredient['amount_unit']
+                new_recipe_ingredient.preparation = recipe_ingredient['preparation']
+                new_recipe_ingredient.save()
+
             ingredient_list.append(new_recipe_ingredient)
 
         for ingredient_to_remove in set([ingredient.ingredient.slug for ingredient in instance.recipeingredient_set.all()]) - set(ingredient_slugs):
@@ -127,7 +157,7 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['slug', 'title', 'category', 'user_can_edit', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price', 'creator']
+        fields = ['slug', 'title', 'category', 'contributor', 'contributor_name', 'user_can_edit', 'page', 'serves', 'steps', 'style', 'preparation_time', 'notes', 'ingredients', 'description', 'source', 'source_slug', 'book_section', 'estimated_total_price', 'creator']
 
 class RecipeBookSerializer(ModelSerializer):
     contributors = StringRelatedField(many=True, read_only=True)
@@ -162,6 +192,7 @@ class RecipeBookSerializer(ModelSerializer):
 
         instance.isbn = validated_data.get('isbn', '')
         instance.publisher = validated_data.get('publisher', '')
+        instance.description = validated_data.get('description', '')
         instance.category = validated_data.get('category', 'other')
         instance.publicly_accessible = validated_data.get('publicly_accessible', False)
 
