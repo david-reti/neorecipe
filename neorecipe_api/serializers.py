@@ -53,7 +53,7 @@ class RecipeSerializer(ModelSerializer):
     notes = RecipeNoteSerializer(many=True, source="recipenote_set", required=False)
     user_can_edit = BooleanField(read_only=True, default=False)
     contributor = StringRelatedField()
-    contributor_name = CharField(write_only = True, default = "")
+    contributor_name = CharField(write_only = True, required=False, default = "")
 
     def validate(self, data):
         if not data.get('source_slug', None) and not data.get('book_section_slug', None):
@@ -105,6 +105,8 @@ class RecipeSerializer(ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
         instance.category = validated_data.get('category', instance.category)
         instance.serves = validated_data.get('serves', instance.serves)
+        instance.page = validated_data.get('page', instance.page)
+        instance.preparation_time = validated_data.get('preparation_time', instance.preparation_time)
 
         steps = validated_data.pop('recipestep_set')
         ingredients = validated_data.pop('recipeingredient_set')
