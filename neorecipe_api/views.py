@@ -132,17 +132,22 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Recipe.objects.all()
-        if 'slug' in self.request.GET:
-            return Recipe.objects.filter(Q(slug = self.request.GET['slug']), Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
-        return Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+        if self.request.user:
+            if self.request.user.is_staff:
+                return Recipe.objects.all()
+            if 'slug' in self.request.GET:
+                return Recipe.objects.filter(Q(slug = self.request.GET['slug']), Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+            return Recipe.objects.filter(Q(source__publicly_accessible = True) | Q(source__creator = self.request.user))
+        return Recipe.objects.filter(Q(source__publicly_accessible = True))
 
     def get(self, request, *args, **kwargs):
         try:
             serializer = RecipeSerializer(self.get_queryset().get(slug = kwargs['slug']))
             to_return = serializer.data.copy()
-            to_return['user_can_edit'] = request.user.pk == serializer.data.get('creator') or request.user.is_staff
+            if request.user:
+                to_return['user_can_edit'] = request.user.pk == serializer.data.get('creator') or request.user.is_staff
+            else:
+                to_return['user_can_edit'] = False
         except Recipe.DoesNotExist:
             return Response({'message': 'the recipe has been deleted'}, 404)
         return Response(to_return)
