@@ -132,7 +132,7 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        if self.request.user:
+        if self.request.user and self.request.user.is_authenticated:
             if self.request.user.is_staff:
                 return Recipe.objects.all()
             if 'slug' in self.request.GET:
@@ -144,7 +144,7 @@ class SingleRecipeView(generics.RetrieveUpdateDestroyAPIView):
         try:
             serializer = RecipeSerializer(self.get_queryset().get(slug = kwargs['slug']))
             to_return = serializer.data.copy()
-            if request.user:
+            if request.user and self.request.user.is_authenticated:
                 to_return['user_can_edit'] = request.user.pk == serializer.data.get('creator') or request.user.is_staff
             else:
                 to_return['user_can_edit'] = False
