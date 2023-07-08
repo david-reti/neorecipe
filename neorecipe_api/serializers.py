@@ -76,7 +76,7 @@ class RecipeSerializer(ModelSerializer):
                                                                             name = contributor_name, 
                                                                             defaults={  'book': recipe.source,
                                                                                         'name': contributor_name,
-                                                                                        'role': 'Recipe Contributor'})
+                                                                                        'role': 'Contributor'})
                 recipe.contributor = new_contributor
             else:
                 recipe.contributor = None
@@ -117,7 +117,7 @@ class RecipeSerializer(ModelSerializer):
             if contributor_name:
                 new_contributor, _ = BookContributor.objects.get_or_create( book = instance.source, 
                                                                             name = contributor_name, 
-                                                                            role = 'Recipe Contributor')
+                                                                            role = 'Contributor')
                 instance.contributor = new_contributor
             else:
                 instance.contributor = None
